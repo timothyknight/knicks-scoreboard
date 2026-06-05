@@ -66,7 +66,7 @@
 </head>
 <body>
   <div class="widget">
-    <div id="status" class="status">Loading…</div>
+    <div id="status" class="status" style="display:none"></div>
 
     <div class="row away">
       <img id="awayLogo" class="logo" alt="">
@@ -138,15 +138,17 @@ function render(ev){
   const statusEl = $("status");
   statusEl.className = "status";
   if(state==="pre"){
-    statusEl.textContent = st.type.shortDetail || st.type.detail || "Scheduled";
+    statusEl.style.display = "none";      // no date/time shown pre-game
     $("clock").textContent = "";
     $("period").textContent = "Tip-off";
   } else if(state==="in"){
+    statusEl.style.display = "";
     statusEl.classList.add("live");
     statusEl.textContent = "● Live";
     $("clock").textContent = st.displayClock || "";
     $("period").textContent = periodLabel(st.period);
   } else { // post
+    statusEl.style.display = "";
     statusEl.classList.add("final");
     statusEl.textContent = st.type.shortDetail || "Final";
     $("clock").textContent = "";
