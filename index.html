@@ -19,8 +19,7 @@
     width:256px;height:300px;max-width:256px;max-height:300px;
     display:flex;flex-direction:column;
     padding:10px 12px;color:#fff;overflow:hidden;
-    background:radial-gradient(120% 90% at 50% 0%, #11131d 0%, var(--bg) 70%);
-    border-bottom-right-radius:14px;
+    background:#000;
   }
 
   .status{
@@ -35,13 +34,9 @@
 
   .row{
     flex:1 1 0;display:flex;align-items:center;justify-content:space-between;
-    gap:10px;min-height:0;position:relative;padding:0 14px;
+    gap:10px;min-height:0;padding:0 14px;
   }
-  .row::before{content:"";position:absolute;inset:0;opacity:.16;z-index:0;border-radius:8px}
-  .row.away::before{background:radial-gradient(70% 120% at 0% 50%, var(--away) 0%, transparent 70%)}
-  .row.home::before{background:radial-gradient(70% 120% at 0% 50%, var(--home) 0%, transparent 70%)}
-  .row>*{position:relative;z-index:1}
-  .logo{width:72px;height:72px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 6px #0009)}
+  .logo{width:104px;height:104px;object-fit:contain;flex:0 0 auto}
   .score{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;line-height:.85;letter-spacing:-1px;flex:0 0 auto}
 
   .mid{
