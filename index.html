@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Knicks @ Spurs — Live</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --card:#0e1018;
+    --muted:#7b8194;
+    --line:#1c2030;
+    --away:#1d428a;   /* Knicks blue */
+    --away2:#f58426;  /* Knicks orange */
+    --home:#9aa3ad;   /* Spurs silver */
+    --home2:#000000;  /* Spurs black */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 120% at 50% 0%, #11131d 0%, var(--bg) 60%);
+    color:#fff;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    height:100vh;width:100vw;overflow:hidden;
+    display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* Everything is sized in vmin so it scales to any screen / aspect ratio */
+  .topbar{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:1.5vmin;
+    padding:3vmin 4vmin 0;text-align:center;
+  }
+  .status{
+    font-size:3.2vmin;font-weight:800;letter-spacing:.35vmin;text-transform:uppercase;
+    padding:1.1vmin 2.6vmin;border-radius:999px;border:.25vmin solid var(--line);
+    background:var(--card);white-space:nowrap;
+  }
+  .status.live{border-color:#ff3b3b;color:#fff;background:#ff3b3b22;animation:pulse 2s infinite}
+  .status.final{border-color:#3ad17a;color:#9cf3c0}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff3b3b55}50%{box-shadow:0 0 0 1.2vmin #ff3b3b00}}
+
+  .scene{flex:1 1 auto;display:flex;align-items:stretch;justify-content:center;min-height:0}
+  .team{
+    flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2vmin;padding:2vmin;position:relative;min-width:0;
+  }
+  .team::before{content:"";position:absolute;inset:0;z-index:0;opacity:.16}
+  .team.away::before{background:radial-gradient(80% 60% at 50% 40%, var(--away) 0%, transparent 70%)}
+  .team.home::before{background:radial-gradient(80% 60% at 50% 40%, var(--home) 0%, transparent 70%)}
+  .team>*{position:relative;z-index:1}
+  .logo{width:26vmin;height:26vmin;object-fit:contain;filter:drop-shadow(0 1vmin 3vmin #000a)}
+  .tname{font-size:4.2vmin;font-weight:800;letter-spacing:.2vmin;text-transform:uppercase;text-align:center;line-height:1}
+  .tcity{font-size:2.4vmin;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3vmin}
+  .record{font-size:2vmin;color:var(--muted);font-weight:600}
+  .score{font-size:18vmin;font-weight:900;line-height:.85;font-variant-numeric:tabular-nums;letter-spacing:-.5vmin}
+
+  .center{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:1.2vmin;padding:0 1vmin;min-width:18vmin;
+  }
+  .at{font-size:4vmin;font-weight:800;color:var(--muted)}
+  .clock{font-size:5vmin;font-weight:900;font-variant-numeric:tabular-nums;color:#fff;line-height:1;text-align:center}
+  .period{font-size:2.6vmin;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3vmin}
+
+  .footer{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:1.6vmin 4vmin 3vmin;color:var(--muted);font-size:2vmin;font-weight:600;
+  }
+  .footer .dot{display:inline-block;width:1.1vmin;height:1.1vmin;border-radius:50%;background:#3ad17a;margin-right:1vmin;vertical-align:middle}
+  .footer .stale .dot{background:#ff8c3b}
+  #err{color:#ff8c8c}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div id="status" class="status">Loading…</div>
+  </div>
+
+  <div class="scene">
+    <div class="team away">
+      <img id="awayLogo" class="logo" alt="">
+      <div class="tcity" id="awayCity">New York</div>
+      <div class="tname" id="awayName">Knicks</div>
+      <div class="record" id="awayRec"></div>
+      <div class="score" id="awayScore">0</div>
+    </div>
+
+    <div class="center">
+      <div class="at">@</div>
+      <div class="clock" id="clock"></div>
+      <div class="period" id="period"></div>
+    </div>
+
+    <div class="team home">
+      <img id="homeLogo" class="logo" alt="">
+      <div class="tcity" id="homeCity">San Antonio</div>
+      <div class="tname" id="homeName">Spurs</div>
+      <div class="record" id="homeRec"></div>
+      <div class="score" id="homeScore">0</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div id="venue"></div>
+    <div id="updated"><span class="dot"></span><span id="updatedText">—</span></div>
+  </div>
+
+<script>
+const SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
+const WANT = new Set(["NY","SA"]);      // Knicks & Spurs abbreviations
+const REFRESH_MS = 12000;               // poll every 12s
+const $ = id => document.getElementById(id);
+
+function findGame(data){
+  for(const ev of (data.events||[])){
+    const comp = (ev.competitions||[])[0];
+    if(!comp) continue;
+    const abbrs = comp.competitors.map(c=>c.team.abbreviation);
+    if(abbrs.some(a=>WANT.has(a))) return ev;
+  }
+  return null;
+}
+
+function setTeam(side, c){
+  const t = c.team;
+  $(side+"Logo").src = t.logo || "";
+  $(side+"Name").textContent = t.shortDisplayName || t.name || t.displayName;
+  $(side+"City").textContent = (t.displayName||"").replace(t.shortDisplayName||t.name||"","").trim();
+  $(side+"Score").textContent = c.score ?? "0";
+  const rec = (c.records||[]).find(r=>r.type==="total") || (c.records||[])[0];
+  $(side+"Rec").textContent = rec ? rec.summary : "";
+}
+
+function render(ev){
+  const comp = ev.competitions[0];
+  const home = comp.competitors.find(c=>c.homeAway==="home");
+  const away = comp.competitors.find(c=>c.homeAway==="away");
+  setTeam("home", home);
+  setTeam("away", away);
+
+  const st = ev.status;
+  const state = st.type.state;            // pre | in | post
+  const statusEl = $("status");
+  statusEl.className = "status";
+  if(state==="pre"){
+    statusEl.textContent = st.type.shortDetail || st.type.detail || "Scheduled";
+    $("clock").textContent = "";
+    $("period").textContent = "Tip-off";
+  } else if(state==="in"){
+    statusEl.classList.add("live");
+    statusEl.textContent = "● Live";
+    $("clock").textContent = st.displayClock || "";
+    $("period").textContent = periodLabel(st.period);
+  } else { // post
+    statusEl.classList.add("final");
+    statusEl.textContent = st.type.shortDetail || "Final";
+    $("clock").textContent = "";
+    $("period").textContent = st.period>4 ? "Final/OT" : "Final";
+  }
+
+  $("venue").textContent = (comp.venue && comp.venue.fullName) ? comp.venue.fullName : "";
+}
+
+function periodLabel(p){
+  if(!p) return "";
+  if(p<=4) return "Q"+p;
+  return "OT"+(p-4);
+}
+
+let lastOk = 0;
+async function tick(){
+  try{
+    const res = await fetch(SCOREBOARD + "?_=" + Date.now(), {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const ev = findGame(data);
+    if(!ev){ $("status").textContent = "Game not found"; return; }
+    render(ev);
+    lastOk = Date.now();
+    markFresh(true);
+  }catch(e){
+    markFresh(false, e.message);
+  }
+}
+
+function markFresh(ok, msg){
+  const wrap = $("updated");
+  const txt = $("updatedText");
+  const d = new Date(lastOk||Date.now());
+  const hh = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  if(ok){
+    wrap.classList.remove("stale");
+    txt.textContent = "Updated " + hh;
+  }else{
+    wrap.classList.add("stale");
+    txt.textContent = "Reconnecting… (last " + (lastOk?hh:"never") + ")";
+  }
+}
+
+tick();
+setInterval(tick, REFRESH_MS);
+</script>
+</body>
+</html>
