@@ -34,18 +34,15 @@
   @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff3b3b55}50%{box-shadow:0 0 0 6px #ff3b3b00}}
 
   .row{
-    flex:1 1 0;display:flex;align-items:center;gap:10px;min-height:0;position:relative;
+    flex:1 1 0;display:flex;align-items:center;justify-content:space-between;
+    gap:10px;min-height:0;position:relative;padding:0 14px;
   }
   .row::before{content:"";position:absolute;inset:0;opacity:.16;z-index:0;border-radius:8px}
   .row.away::before{background:radial-gradient(70% 120% at 0% 50%, var(--away) 0%, transparent 70%)}
   .row.home::before{background:radial-gradient(70% 120% at 0% 50%, var(--home) 0%, transparent 70%)}
   .row>*{position:relative;z-index:1}
-  .logo{width:46px;height:46px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 6px #0009)}
-  .info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.05}
-  .city{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
-  .name{font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rec{font-size:10px;font-weight:600;color:var(--muted);margin-top:1px}
-  .score{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;line-height:.85;letter-spacing:-1px;flex:0 0 auto}
+  .logo{width:72px;height:72px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 6px #0009)}
+  .score{font-size:56px;font-weight:900;font-variant-numeric:tabular-nums;line-height:.85;letter-spacing:-1px;flex:0 0 auto}
 
   .mid{
     flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;
@@ -70,11 +67,6 @@
 
     <div class="row away">
       <img id="awayLogo" class="logo" alt="">
-      <div class="info">
-        <div class="city" id="awayCity">New York</div>
-        <div class="name" id="awayName">Knicks</div>
-        <div class="rec" id="awayRec"></div>
-      </div>
       <div class="score" id="awayScore">0</div>
     </div>
 
@@ -85,16 +77,10 @@
 
     <div class="row home">
       <img id="homeLogo" class="logo" alt="">
-      <div class="info">
-        <div class="city" id="homeCity">San Antonio</div>
-        <div class="name" id="homeName">Spurs</div>
-        <div class="rec" id="homeRec"></div>
-      </div>
       <div class="score" id="homeScore">0</div>
     </div>
 
     <div class="footer">
-      <span class="venue" id="venue"></span>
       <span id="updated"><span class="dot"></span><span id="updatedText">—</span></span>
     </div>
   </div>
@@ -116,14 +102,8 @@ function findGame(data){
 }
 
 function setTeam(side, c){
-  const t = c.team;
-  $(side+"Logo").src = t.logo || "";
-  const short = t.shortDisplayName || t.name || t.displayName;
-  $(side+"Name").textContent = short;
-  $(side+"City").textContent = (t.displayName||"").replace(short||"","").trim();
+  $(side+"Logo").src = c.team.logo || "";
   $(side+"Score").textContent = c.score ?? "0";
-  const rec = (c.records||[]).find(r=>r.type==="total") || (c.records||[])[0];
-  $(side+"Rec").textContent = rec ? rec.summary : "";
 }
 
 function render(ev){
@@ -154,8 +134,6 @@ function render(ev){
     $("clock").textContent = "";
     $("period").textContent = st.period>4 ? "Final/OT" : "Final";
   }
-
-  $("venue").textContent = (comp.venue && comp.venue.fullName) ? comp.venue.fullName : "";
 }
 
 function periodLabel(p){
