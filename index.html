@@ -6,103 +6,97 @@
 <title>Knicks @ Spurs — Live</title>
 <style>
   :root{
-    --bg:#05060a;
-    --card:#0e1018;
-    --muted:#7b8194;
-    --line:#1c2030;
+    --bg:#05060a; --card:#0e1018; --muted:#8b91a4; --line:#1c2030;
     --away:#1d428a;   /* Knicks blue */
-    --away2:#f58426;  /* Knicks orange */
     --home:#9aa3ad;   /* Spurs silver */
-    --home2:#000000;  /* Spurs black */
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    background:radial-gradient(120% 120% at 50% 0%, #11131d 0%, var(--bg) 60%);
-    color:#fff;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
-    height:100vh;width:100vw;overflow:hidden;
+  html,body{background:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+
+  /* Compact tile pinned top-left, capped at 256x300 */
+  .widget{
+    position:fixed;top:0;left:0;
+    width:256px;height:300px;max-width:256px;max-height:300px;
     display:flex;flex-direction:column;
-    -webkit-font-smoothing:antialiased;
+    padding:10px 12px;color:#fff;overflow:hidden;
+    background:radial-gradient(120% 90% at 50% 0%, #11131d 0%, var(--bg) 70%);
+    border-bottom-right-radius:14px;
   }
-  /* Everything is sized in vmin so it scales to any screen / aspect ratio */
-  .topbar{
-    flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:1.5vmin;
-    padding:3vmin 4vmin 0;text-align:center;
-  }
+
   .status{
-    font-size:3.2vmin;font-weight:800;letter-spacing:.35vmin;text-transform:uppercase;
-    padding:1.1vmin 2.6vmin;border-radius:999px;border:.25vmin solid var(--line);
-    background:var(--card);white-space:nowrap;
+    flex:0 0 auto;align-self:center;
+    font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px;border:1px solid var(--line);
+    background:var(--card);white-space:nowrap;margin-bottom:8px;
   }
-  .status.live{border-color:#ff3b3b;color:#fff;background:#ff3b3b22;animation:pulse 2s infinite}
+  .status.live{border-color:#ff3b3b;background:#ff3b3b22;animation:pulse 2s infinite}
   .status.final{border-color:#3ad17a;color:#9cf3c0}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff3b3b55}50%{box-shadow:0 0 0 1.2vmin #ff3b3b00}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ff3b3b55}50%{box-shadow:0 0 0 6px #ff3b3b00}}
 
-  .scene{flex:1 1 auto;display:flex;align-items:stretch;justify-content:center;min-height:0}
-  .team{
-    flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:2vmin;padding:2vmin;position:relative;min-width:0;
+  .row{
+    flex:1 1 0;display:flex;align-items:center;gap:10px;min-height:0;position:relative;
   }
-  .team::before{content:"";position:absolute;inset:0;z-index:0;opacity:.16}
-  .team.away::before{background:radial-gradient(80% 60% at 50% 40%, var(--away) 0%, transparent 70%)}
-  .team.home::before{background:radial-gradient(80% 60% at 50% 40%, var(--home) 0%, transparent 70%)}
-  .team>*{position:relative;z-index:1}
-  .logo{width:26vmin;height:26vmin;object-fit:contain;filter:drop-shadow(0 1vmin 3vmin #000a)}
-  .tname{font-size:4.2vmin;font-weight:800;letter-spacing:.2vmin;text-transform:uppercase;text-align:center;line-height:1}
-  .tcity{font-size:2.4vmin;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3vmin}
-  .record{font-size:2vmin;color:var(--muted);font-weight:600}
-  .score{font-size:18vmin;font-weight:900;line-height:.85;font-variant-numeric:tabular-nums;letter-spacing:-.5vmin}
+  .row::before{content:"";position:absolute;inset:0;opacity:.16;z-index:0;border-radius:8px}
+  .row.away::before{background:radial-gradient(70% 120% at 0% 50%, var(--away) 0%, transparent 70%)}
+  .row.home::before{background:radial-gradient(70% 120% at 0% 50%, var(--home) 0%, transparent 70%)}
+  .row>*{position:relative;z-index:1}
+  .logo{width:46px;height:46px;object-fit:contain;flex:0 0 auto;filter:drop-shadow(0 2px 6px #0009)}
+  .info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;line-height:1.05}
+  .city{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .name{font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rec{font-size:10px;font-weight:600;color:var(--muted);margin-top:1px}
+  .score{font-size:40px;font-weight:900;font-variant-numeric:tabular-nums;line-height:.85;letter-spacing:-1px;flex:0 0 auto}
 
-  .center{
-    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:1.2vmin;padding:0 1vmin;min-width:18vmin;
+  .mid{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:5px 0;margin:2px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   }
-  .at{font-size:4vmin;font-weight:800;color:var(--muted)}
-  .clock{font-size:5vmin;font-weight:900;font-variant-numeric:tabular-nums;color:#fff;line-height:1;text-align:center}
-  .period{font-size:2.6vmin;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3vmin}
+  .period{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .clock{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
 
   .footer{
-    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
-    padding:1.6vmin 4vmin 3vmin;color:var(--muted);font-size:2vmin;font-weight:600;
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:6px;
+    color:var(--muted);font-size:9px;font-weight:600;margin-top:6px;
   }
-  .footer .dot{display:inline-block;width:1.1vmin;height:1.1vmin;border-radius:50%;background:#3ad17a;margin-right:1vmin;vertical-align:middle}
+  .footer .venue{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .footer .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3ad17a;margin-right:4px;vertical-align:middle}
   .footer .stale .dot{background:#ff8c3b}
-  #err{color:#ff8c8c}
+  #updated{flex:0 0 auto;white-space:nowrap}
 </style>
 </head>
 <body>
-  <div class="topbar">
+  <div class="widget">
     <div id="status" class="status">Loading…</div>
-  </div>
 
-  <div class="scene">
-    <div class="team away">
+    <div class="row away">
       <img id="awayLogo" class="logo" alt="">
-      <div class="tcity" id="awayCity">New York</div>
-      <div class="tname" id="awayName">Knicks</div>
-      <div class="record" id="awayRec"></div>
+      <div class="info">
+        <div class="city" id="awayCity">New York</div>
+        <div class="name" id="awayName">Knicks</div>
+        <div class="rec" id="awayRec"></div>
+      </div>
       <div class="score" id="awayScore">0</div>
     </div>
 
-    <div class="center">
-      <div class="at">@</div>
-      <div class="clock" id="clock"></div>
-      <div class="period" id="period"></div>
+    <div class="mid">
+      <span class="period" id="period"></span>
+      <span class="clock" id="clock"></span>
     </div>
 
-    <div class="team home">
+    <div class="row home">
       <img id="homeLogo" class="logo" alt="">
-      <div class="tcity" id="homeCity">San Antonio</div>
-      <div class="tname" id="homeName">Spurs</div>
-      <div class="record" id="homeRec"></div>
+      <div class="info">
+        <div class="city" id="homeCity">San Antonio</div>
+        <div class="name" id="homeName">Spurs</div>
+        <div class="rec" id="homeRec"></div>
+      </div>
       <div class="score" id="homeScore">0</div>
     </div>
-  </div>
 
-  <div class="footer">
-    <div id="venue"></div>
-    <div id="updated"><span class="dot"></span><span id="updatedText">—</span></div>
+    <div class="footer">
+      <span class="venue" id="venue"></span>
+      <span id="updated"><span class="dot"></span><span id="updatedText">—</span></span>
+    </div>
   </div>
 
 <script>
@@ -124,8 +118,9 @@ function findGame(data){
 function setTeam(side, c){
   const t = c.team;
   $(side+"Logo").src = t.logo || "";
-  $(side+"Name").textContent = t.shortDisplayName || t.name || t.displayName;
-  $(side+"City").textContent = (t.displayName||"").replace(t.shortDisplayName||t.name||"","").trim();
+  const short = t.shortDisplayName || t.name || t.displayName;
+  $(side+"Name").textContent = short;
+  $(side+"City").textContent = (t.displayName||"").replace(short||"","").trim();
   $(side+"Score").textContent = c.score ?? "0";
   const rec = (c.records||[]).find(r=>r.type==="total") || (c.records||[])[0];
   $(side+"Rec").textContent = rec ? rec.summary : "";
@@ -183,17 +178,17 @@ async function tick(){
   }
 }
 
-function markFresh(ok, msg){
+function markFresh(ok){
   const wrap = $("updated");
   const txt = $("updatedText");
   const d = new Date(lastOk||Date.now());
-  const hh = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const hh = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   if(ok){
     wrap.classList.remove("stale");
-    txt.textContent = "Updated " + hh;
+    txt.textContent = hh;
   }else{
     wrap.classList.add("stale");
-    txt.textContent = "Reconnecting… (last " + (lastOk?hh:"never") + ")";
+    txt.textContent = "reconnecting…";
   }
 }
 
